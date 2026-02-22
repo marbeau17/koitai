@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // ── users collection ──────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+                    && request.resource.data.keys().hasAll(['birthDate', 'createdAt'])
+                    && request.resource.data.birthDate is timestamp;
+      allow update: if isOwner(uid)
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                       .hasAny(['createdAt', 'subscription']);
+      // subscription is updated only via Cloud Functions
+
+      // fortune_results subcollection
+      match /fortune_results/{date} {
+        allow read: if isOwner(uid);
+        allow write: if false; // Cloud Functions only
+      }
+
+      // pair_readings subcollection
+      match /pair_readings/{pairId} {
+        allow read: if isOwner(uid);
+        allow create: if isOwner(uid);
+        allow delete: if isOwner(uid);
+        allow update: if false; // Cloud Functions only
+      }
+    }
+
+    // ── fortune_cache (read-only for authenticated users) ─────
+    match /fortune_cache/{date} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // ── notification_queue (no client access) ─────────────────
+    match /notification_queue/{docId} {
+      allow read, write: if false;
+    }
+
+    // ── app_config (public read, no client write) ─────────────
+    match /app_config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

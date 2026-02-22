@@ -30,6 +30,15 @@ class ProfileScreen extends ConsumerWidget {
               color: AppColors.textPrimary,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.settings_outlined,
+                color: AppColors.textPrimary,
+              ),
+              onPressed: () => context.push(AppRoutes.settings),
+            ),
+          ],
         ),
         body: ListView(
           padding: const EdgeInsets.all(20),
@@ -192,18 +201,14 @@ class ProfileScreen extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.notifications_outlined,
                     label: AppStrings.notificationSettings,
-                    onTap: () {
-                      // TODO: Navigate to notification settings
-                    },
+                    onTap: () => context.push(AppRoutes.settings),
                   ),
                   const Divider(
                       height: 1, color: AppColors.border, indent: 56),
                   _SettingsTile(
                     icon: Icons.palette_outlined,
                     label: AppStrings.themeSettings,
-                    onTap: () {
-                      // TODO: Navigate to theme settings
-                    },
+                    onTap: () => context.push(AppRoutes.settings),
                   ),
                   const Divider(
                       height: 1, color: AppColors.border, indent: 56),

@@ -7,6 +7,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/router/app_router.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/loading_indicator.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/pair_provider.dart';
 
 class PairInputScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,8 @@ class _PairInputScreenState extends ConsumerState<PairInputScreen> {
   @override
   Widget build(BuildContext context) {
     final pair = ref.watch(pairProvider);
+    final authState = ref.watch(authProvider);
+    final myBirthDate = authState.birthDate ?? DateTime(1995, 6, 15);
 
     return GradientBackground(
       child: Scaffold(
@@ -127,7 +130,7 @@ class _PairInputScreenState extends ConsumerState<PairInputScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '1998/03/15',
+                          DateFormat('yyyy/MM/dd').format(myBirthDate),
                           style: const TextStyle(
                             fontSize: 16,
                             color: AppColors.textSecondary,

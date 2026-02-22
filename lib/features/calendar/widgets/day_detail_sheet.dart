@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../shared/widgets/star_rating.dart';
+import '../providers/calendar_provider.dart';
 
 /// Bottom sheet showing details for a selected calendar day.
 class DayDetailSheet extends StatelessWidget {
   final DateTime day;
   final int score;
+  final DayDetailData? detail;
   final VoidCallback? onDetail;
 
   const DayDetailSheet({
     super.key,
     required this.day,
     required this.score,
+    this.detail,
     this.onDetail,
   });
 
@@ -70,6 +73,27 @@ class DayDetailSheet extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
+          // Individual score breakdown
+          if (detail != null) ...[
+            const SizedBox(height: 16),
+            _ScoreBreakdownRow(
+              label: '\u6570\u79D8\u8853',
+              score: detail!.numerologyScore,
+              icon: Icons.auto_awesome,
+            ),
+            const SizedBox(height: 8),
+            _ScoreBreakdownRow(
+              label: detail!.moonPhaseName,
+              score: detail!.moonScore,
+              icon: Icons.nightlight_round,
+            ),
+            const SizedBox(height: 8),
+            _ScoreBreakdownRow(
+              label: '\u30D0\u30A4\u30AA\u30EA\u30BA\u30E0',
+              score: detail!.biorhythmScore,
+              icon: Icons.waves,
+            ),
+          ],
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -89,6 +113,70 @@ class DayDetailSheet extends StatelessWidget {
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+}
+
+/// A row displaying a single score component with icon, label, and bar.
+class _ScoreBreakdownRow extends StatelessWidget {
+  final String label;
+  final int score;
+  final IconData icon;
+
+  const _ScoreBreakdownRow({
+    required this.label,
+    required this.score,
+    required this.icon,
+  });
+
+  Color get _barColor {
+    if (score >= 80) return AppColors.gold;
+    if (score >= 60) return AppColors.primary;
+    if (score >= 40) return AppColors.textSecondary;
+    return AppColors.normalDay;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 80,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: score / 100.0,
+              backgroundColor: AppColors.disabledBg,
+              valueColor: AlwaysStoppedAnimation<Color>(_barColor),
+              minHeight: 6,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 28,
+          child: Text(
+            '$score',
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

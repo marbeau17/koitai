@@ -146,6 +146,7 @@ class PairResultScreen extends ConsumerWidget {
                 '\uD83E\uDD48',
                 '\uD83E\uDD49'
               ];
+              final medal = index < medals.length ? medals[index] : '\u2B50';
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(16),
@@ -160,7 +161,7 @@ class PairResultScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Text(
-                      medals[index],
+                      medal,
                       style: const TextStyle(fontSize: 24),
                     ),
                     const SizedBox(width: 12),

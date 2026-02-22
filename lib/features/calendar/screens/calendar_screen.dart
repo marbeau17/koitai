@@ -77,12 +77,14 @@ class CalendarScreen extends ConsumerWidget {
                           );
                           final score =
                               calState.dailyScores[normalDay] ?? 50;
+                          final detail = ref.read(calendarProvider).selectedDayDetail;
                           showModalBottomSheet(
                             context: context,
                             backgroundColor: Colors.transparent,
                             builder: (_) => DayDetailSheet(
                               day: selected,
                               score: score,
+                              detail: detail,
                               onDetail: () {
                                 Navigator.pop(context);
                                 final dateStr = DateFormat('yyyy-MM-dd')
