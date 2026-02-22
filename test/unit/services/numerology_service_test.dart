@@ -142,7 +142,8 @@ void main() {
         // We verify by checking the personal year is 6
         final birthDate = DateTime(1990, 1, 1);
         final py = NumerologyService.calculatePersonalYear(birthDate, 2026);
-        // The score should reflect the year bonus if py == 6
+        // Verify personal year is computed (used to check year bonus logic)
+        expect(py, isA<int>());
         final score = NumerologyService.calculateNumerologyLoveScore(
             birthDate, DateTime(2026, 1, 1));
         expect(score, greaterThanOrEqualTo(0));

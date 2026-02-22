@@ -23,18 +23,6 @@ class MoonPhaseService {
   /// Reference new moon: January 6, 2000 18:14 UTC.
   static final DateTime referenceNewMoon = DateTime.utc(2000, 1, 6, 18, 14, 0);
 
-  /// Base love scores by moon phase.
-  static const Map<MoonPhase, int> _phaseBaseScores = {
-    MoonPhase.newMoon: 75,
-    MoonPhase.waxingCrescent: 70,
-    MoonPhase.firstQuarter: 85,
-    MoonPhase.waxingGibbous: 80,
-    MoonPhase.fullMoon: 95,
-    MoonPhase.waningGibbous: 75,
-    MoonPhase.lastQuarter: 45,
-    MoonPhase.waningCrescent: 40,
-  };
-
   /// Calculates the moon age (days since last new moon) for [targetDate].
   ///
   /// Returns a value between 0.0 and ~29.53.

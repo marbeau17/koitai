@@ -55,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
                 value: profile.isDarkMode,
                 onChanged: (_) =>
                     ref.read(profileProvider.notifier).toggleTheme(),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
             ),
             const SizedBox(height: 12),

@@ -17,7 +17,7 @@ extension DateTimeExt on DateTime {
   String toJaMonthDayWeekday() {
     const weekdays = ['月', '火', '水', '木', '金', '土', '日'];
     final wd = weekdays[weekday - 1];
-    return '${month}月$day日($wd)';
+    return '$month月$day日($wd)';
   }
 
   /// "2026年2月"
