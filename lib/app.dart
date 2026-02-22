@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/constants/app_strings.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+
+/// Root application widget.
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // TODO: read theme mode from user settings provider
+    const themeMode = ThemeMode.dark;
+
+    return MaterialApp.router(
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
+
+      // Theme – dark by default per spec
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeMode,
+
+      // Routing
+      routerConfig: appRouter,
+
+      // Locale
+      locale: const Locale('ja'),
+      supportedLocales: const [Locale('ja')],
+    );
+  }
+}
