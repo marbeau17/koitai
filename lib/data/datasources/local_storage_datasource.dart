@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/fortune_result_model.dart';
+import '../models/subscription_status.dart';
 import '../models/user_model.dart';
 
 class LocalStorageDatasource {
@@ -98,6 +99,7 @@ class LocalStorageDatasource {
   }
 
   UserModel _userFromCache(String uid, Map<String, dynamic> map) {
+    final expiresAtRaw = map['subscriptionExpiresAt'] as String?;
     return UserModel(
       uid: uid,
       displayName: map['displayName'] as String? ?? '',
@@ -109,6 +111,11 @@ class LocalStorageDatasource {
       fcmToken: map['fcmToken'] as String?,
       notificationEnabled: map['notificationEnabled'] as bool? ?? false,
       notificationTime: map['notificationTime'] as String? ?? '08:00',
+      subscription: SubscriptionStatus(
+        plan: map['subscriptionPlan'] as String? ?? 'free',
+        expiresAt:
+            expiresAtRaw != null ? DateTime.parse(expiresAtRaw) : null,
+      ),
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
     );

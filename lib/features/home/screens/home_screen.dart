@@ -9,7 +9,9 @@ import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/score_bar.dart';
 import '../../../shared/widgets/star_rating.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/home_provider.dart';
+import '../widgets/biorhythm_chart.dart';
 import '../widgets/today_fortune_card.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -115,6 +117,47 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
+                        ),
+                        const SizedBox(height: 24),
+                        Builder(
+                          builder: (context) {
+                            final birthDate =
+                                ref.watch(authProvider).birthDate;
+                            if (birthDate != null) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.bgCard,
+                                    borderRadius:
+                                        BorderRadius.circular(16),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'バイオリズム',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      BiorhythmChart(
+                                        birthDate: birthDate,
+                                        targetDate: DateTime.now(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                         const SizedBox(height: 24),
                         TodayFortuneCard(

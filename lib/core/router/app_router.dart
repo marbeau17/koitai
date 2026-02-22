@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
 import '../../features/calendar/screens/calendar_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/pair/screens/pair_input_screen.dart';
 import '../../features/pair/screens/pair_result_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/profile/screens/settings_screen.dart';
 import '../../features/subscription/screens/paywall_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 
 /// Named route paths.
 abstract final class AppRoutes {
   static const String home = '/';
+  static const String login = '/login';
   static const String onboarding = '/onboarding';
   static const String calendar = '/calendar';
   static const String pair = '/pair';
   static const String pairResult = '/pair/result';
   static const String profile = '/profile';
+  static const String settings = '/settings';
   static const String subscription = '/subscription';
   static const String detail = '/detail/:date';
 
@@ -34,6 +38,13 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AppRoutes.home,
   routes: [
+    // ── Login (outside shell) ────────────────────────────
+    GoRoute(
+      path: AppRoutes.login,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LoginScreen(),
+    ),
+
     // ── Onboarding (outside shell) ─────────────────────────
     GoRoute(
       path: AppRoutes.onboarding,
@@ -66,6 +77,13 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.pairResult,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const PairResultScreen(),
+    ),
+
+    // ── Settings (outside shell) ────────────────────────────
+    GoRoute(
+      path: AppRoutes.settings,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SettingsScreen(),
     ),
 
     // ── Main Shell with Bottom Navigation ──────────────────

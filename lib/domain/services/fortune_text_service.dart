@@ -1,7 +1,7 @@
-import 'package:koitai/domain/services/biorhythm_service.dart';
-import 'package:koitai/domain/services/love_timing_service.dart';
-import 'package:koitai/domain/services/moon_phase_service.dart';
-import 'package:koitai/domain/services/numerology_service.dart';
+import 'biorhythm_service.dart';
+import 'love_timing_service.dart';
+import 'moon_phase_service.dart';
+import 'numerology_service.dart';
 
 /// Daily fortune advice result.
 class DailyAdvice {
