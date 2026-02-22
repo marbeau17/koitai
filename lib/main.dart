@@ -6,12 +6,15 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
 import 'core/constants/app_config.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Hive local storage
   await Hive.initFlutter();

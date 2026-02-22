@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "184480230757",
+    "project_id": "koitai-app",
+    "storage_bucket": "koitai-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184480230757:android:280634fbd8413c8e05458c",
+        "android_client_info": {
+          "package_name": "com.koitai.koitai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABXLzns9p6kh4GSUcGLEQdiflc6y2Q1OY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
