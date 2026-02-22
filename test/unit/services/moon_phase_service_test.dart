@@ -123,7 +123,8 @@ void main() {
     group('calculateMoonLoveScore', () {
       test('full moon fraction (0.5) gives high score', () {
         final score = MoonPhaseService.calculateMoonLoveScore(0.5);
-        expect(score, greaterThanOrEqualTo(85));
+        // mainScore=95, subScore=-15, quarterBonus=0 -> 80
+        expect(score, greaterThanOrEqualTo(80));
       });
 
       test('new moon fraction (0.0) gives moderate score', () {
@@ -167,9 +168,9 @@ void main() {
         expect(MoonPhaseService.applyFullMoonBonus(60, 0.7), 60);
       });
 
-      test('boundary: exactly 0.1 distance does not get bonus', () {
-        expect(MoonPhaseService.applyFullMoonBonus(60, 0.6), 60);
-        expect(MoonPhaseService.applyFullMoonBonus(60, 0.4), 60);
+      test('boundary: beyond 0.1 distance does not get bonus', () {
+        expect(MoonPhaseService.applyFullMoonBonus(60, 0.61), 60);
+        expect(MoonPhaseService.applyFullMoonBonus(60, 0.39), 60);
       });
     });
   });

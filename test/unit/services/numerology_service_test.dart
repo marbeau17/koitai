@@ -8,7 +8,7 @@ void main() {
         expect(NumerologyService.reduceToSingleDigit(24), 6); // 2+4=6
         expect(NumerologyService.reduceToSingleDigit(16), 7); // 1+6=7
         expect(NumerologyService.reduceToSingleDigit(19), 1); // 1+9=10, 1+0=1
-        expect(NumerologyService.reduceToSingleDigit(38), 2); // 3+8=11 -> master
+        expect(NumerologyService.reduceToSingleDigit(38), 11); // 3+8=11 (master number)
       });
 
       test('preserves single digit numbers', () {
