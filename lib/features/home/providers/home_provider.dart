@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/best_day_finder.dart';
 import '../../../domain/services/biorhythm_service.dart';
 import '../../../domain/services/fortune_text_service.dart';
@@ -137,6 +138,8 @@ class HomeFortuneNotifier extends StateNotifier<HomeFortuneState> {
       final effectiveWeekBestDays =
           weekBestDays.isNotEmpty ? weekBestDays : _fallbackWeekDays(birthDate, weekStart, weekEnd);
 
+      final starRating = LoveTimingService.getStarRating(overallScore);
+
       state = state.copyWith(
         overallScore: overallScore,
         numerologyScore: numerologyScore,
@@ -146,6 +149,8 @@ class HomeFortuneNotifier extends StateNotifier<HomeFortuneState> {
         weekBestDays: effectiveWeekBestDays,
         isLoading: false,
       );
+
+      AnalyticsService().logViewFortune(overallScore, starRating);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

@@ -11,6 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../core/constants/app_config.dart';
+import '../../../core/utils/analytics_service.dart';
 
 /// State for the authentication / onboarding flow.
 class AuthState {
@@ -65,6 +66,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final AnalyticsService _analytics = AnalyticsService();
   StreamSubscription<User?>? _authSub;
 
   /// Initialise: restore local profile, check Firebase user, listen to
@@ -175,6 +177,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
       await _saveProfileToHive();
+
+      _analytics.logCompleteOnboarding();
+      if (state.birthDate != null) {
+        _analytics.setUserBirthYear(state.birthDate!.year);
+      }
+      if (state.gender != null) {
+        _analytics.setUserGender(state.gender!);
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -208,6 +218,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         await _firebaseAuth.signInWithCredential(credential);
       }
+
+      _analytics.logSignIn('google');
+      _analytics.setUserAuthMethod('google');
 
       state = state.copyWith(
         isAuthenticated: true,
@@ -256,6 +269,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       await _firebaseAuth.signInWithCredential(oauthCredential);
+
+      _analytics.logSignIn('apple');
+      _analytics.setUserAuthMethod('apple');
 
       state = state.copyWith(
         isAuthenticated: true,

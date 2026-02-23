@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/utils/analytics_service.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../providers/subscription_provider.dart';
 
-class PaywallScreen extends ConsumerWidget {
+class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends ConsumerState<PaywallScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService().logViewPaywall();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final sub = ref.watch(subscriptionProvider);
 
     return GradientBackground(

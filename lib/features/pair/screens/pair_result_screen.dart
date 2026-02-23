@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../shared/widgets/gradient_background.dart';
@@ -212,7 +213,19 @@ class PairResultScreen extends ConsumerWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      // TODO: Share result
+                      final text = '\uD83C\uDF19 \u30B3\u30A4\u30BF\u30A4'
+                          ' - \u76F8\u6027\u5360\u3044\n'
+                          '\n'
+                          '\u3010\uFF12\u4EBA\u306E\u76F8\u6027\u30B9\u30B3\u30A2\u3011'
+                          '${result.compatibilityScore}\u70B9\n'
+                          '\u6570\u79D8\u8853: ${result.numerologyScore}\u70B9\n'
+                          '\u6708\u306E\u540C\u671F: ${result.moonSyncScore}\u70B9\n'
+                          '\u30D0\u30A4\u30AA\u30EA\u30BA\u30E0: ${result.biorhythmScore}\u70B9\n'
+                          '\n'
+                          '\u30A2\u30D7\u30EA\u3067\u8A73\u3057\u304F\u898B\u308B'
+                          ' \u25B6 https://koitai-prod.web.app\n'
+                          '#\u30B3\u30A4\u30BF\u30A4 #\u76F8\u6027\u5360\u3044';
+                      Share.share(text);
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,

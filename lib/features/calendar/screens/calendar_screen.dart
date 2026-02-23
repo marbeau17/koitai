@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/analytics_service.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/loading_indicator.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -13,11 +14,25 @@ import '../providers/calendar_provider.dart';
 import '../widgets/fortune_calendar.dart';
 import '../widgets/day_detail_sheet.dart';
 
-class CalendarScreen extends ConsumerWidget {
+class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final focusedMonth = ref.read(calendarProvider).focusedMonth;
+    final monthStr =
+        '${focusedMonth.year}-${focusedMonth.month.toString().padLeft(2, '0')}';
+    AnalyticsService().logViewCalendar(monthStr);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final calState = ref.watch(calendarProvider);
 
     return GradientBackground(
@@ -99,6 +114,9 @@ class CalendarScreen extends ConsumerWidget {
                           ref
                               .read(calendarProvider.notifier)
                               .changeMonth(focused);
+                          final monthStr =
+                              '${focused.year}-${focused.month.toString().padLeft(2, '0')}';
+                          AnalyticsService().logViewCalendar(monthStr);
                         },
                         startingDayOfWeek: StartingDayOfWeek.monday,
                         locale: 'ja_JP',

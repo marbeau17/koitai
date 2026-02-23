@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/best_day_finder.dart';
 import '../../../domain/services/love_timing_service.dart';
 import '../../../domain/services/moon_phase_service.dart';
@@ -258,6 +259,8 @@ class PairNotifier extends StateNotifier<PairState> {
         history: updatedHistory,
         isCalculating: false,
       );
+
+      AnalyticsService().logViewPairResult(pairTimingScore);
     } catch (e) {
       state = state.copyWith(isCalculating: false, error: e.toString());
     }

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../../core/constants/app_config.dart';
+import '../../../core/utils/analytics_service.dart';
 import '../../../data/models/subscription_status.dart';
 
 enum SubscriptionPlan { monthly, yearly }
@@ -204,6 +205,8 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       // After a successful purchase the listener will fire, but we also
       // explicitly refresh to update the UI immediately.
       await checkSubscriptionStatus();
+
+      AnalyticsService().logSubscribe(resolvedId);
 
       state = state.copyWith(isPurchasing: false);
       return true;

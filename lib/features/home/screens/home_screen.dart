@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/utils/analytics_service.dart';
+import '../../../domain/services/love_timing_service.dart';
 import '../../../shared/widgets/fortune_score_badge.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/loading_indicator.dart';
@@ -166,7 +169,22 @@ class HomeScreen extends ConsumerWidget {
                             // TODO: Navigate to detail screen
                           },
                           onShare: () {
-                            // TODO: Navigate to share screen
+                            AnalyticsService().logShare('fortune');
+                            final stars = LoveTimingService.getStarRating(
+                                fortune.overallScore);
+                            final starStr = '\u2605' * stars;
+                            final text = '\uD83C\uDF19 \u30B3\u30A4\u30BF\u30A4'
+                                ' - \u604B\u306E\u30BF\u30A4\u30DF\u30F3\u30B0\u5360\u3044\n'
+                                '\n'
+                                '\u3010\u4ECA\u65E5\u306E\u604B\u611B\u904B\u3011\n'
+                                '\u30B9\u30B3\u30A2: ${fortune.overallScore}\u70B9'
+                                ' $starStr\n'
+                                '${fortune.advice}\n'
+                                '\n'
+                                '\u30A2\u30D7\u30EA\u3067\u8A73\u3057\u304F\u898B\u308B'
+                                ' \u25B6 https://koitai-prod.web.app\n'
+                                '#\u30B3\u30A4\u30BF\u30A4 #\u604B\u611B\u904B';
+                            Share.share(text);
                           },
                         ),
                         const SizedBox(height: 24),
