@@ -185,26 +185,41 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> signInWithGoogle() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // User cancelled the sign-in flow.
-        state = state.copyWith(isLoading: false);
-        return;
+      if (kIsWeb) {
+        // On web, use Firebase Auth popup directly (google_sign_in doesn't
+        // reliably return tokens on web).
+        final provider = GoogleAuthProvider();
+        provider.addScope('email');
+        await _firebaseAuth.signInWithPopup(provider);
+      } else {
+        // On mobile, use the google_sign_in package for native UX.
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          // User cancelled the sign-in flow.
+          state = state.copyWith(isLoading: false);
+          return;
+        }
+
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        await _firebaseAuth.signInWithCredential(credential);
       }
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _firebaseAuth.signInWithCredential(credential);
 
       state = state.copyWith(
         isAuthenticated: true,
         isLoading: false,
       );
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'popup-closed-by-user' ||
+          e.code == 'cancelled-popup-request') {
+        // User closed the popup – not an error.
+        state = state.copyWith(isLoading: false);
+        return;
+      }
       state = state.copyWith(
         isLoading: false,
         error: _friendlyFirebaseError(e),
