@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/ai_fortune_service.dart';
 import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/best_day_finder.dart';
 import '../../../domain/services/biorhythm_service.dart';
@@ -16,6 +18,10 @@ class HomeFortuneState {
   final int moonScore;
   final int biorhythmScore;
   final String advice;
+  final String? aiAdvice;
+  final String? luckyColor;
+  final String? luckyTime;
+  final String? luckySpot;
   final List<WeekBestDay> weekBestDays;
   final bool isLoading;
   final String? error;
@@ -26,6 +32,10 @@ class HomeFortuneState {
     this.moonScore = 0,
     this.biorhythmScore = 0,
     this.advice = '',
+    this.aiAdvice,
+    this.luckyColor,
+    this.luckyTime,
+    this.luckySpot,
     this.weekBestDays = const [],
     this.isLoading = true,
     this.error,
@@ -37,6 +47,10 @@ class HomeFortuneState {
     int? moonScore,
     int? biorhythmScore,
     String? advice,
+    String? aiAdvice,
+    String? luckyColor,
+    String? luckyTime,
+    String? luckySpot,
     List<WeekBestDay>? weekBestDays,
     bool? isLoading,
     String? error,
@@ -47,6 +61,10 @@ class HomeFortuneState {
       moonScore: moonScore ?? this.moonScore,
       biorhythmScore: biorhythmScore ?? this.biorhythmScore,
       advice: advice ?? this.advice,
+      aiAdvice: aiAdvice ?? this.aiAdvice,
+      luckyColor: luckyColor ?? this.luckyColor,
+      luckyTime: luckyTime ?? this.luckyTime,
+      luckySpot: luckySpot ?? this.luckySpot,
       weekBestDays: weekBestDays ?? this.weekBestDays,
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -140,6 +158,16 @@ class HomeFortuneNotifier extends StateNotifier<HomeFortuneState> {
 
       final starRating = LoveTimingService.getStarRating(overallScore);
 
+      // Derive moon phase name & biorhythm phase for AI context.
+      final moonPhase = MoonPhaseService.getMoonPhase(moonFraction);
+      final moonPhaseName = MoonPhaseService.getMoonPhaseName(moonPhase);
+
+      final biorhythm =
+          BiorhythmService.calculateBiorhythm(birthDate, today);
+      final biorhythmPhase =
+          BiorhythmService.getBiorhythmPhase(biorhythm.emotional);
+
+      // Set state immediately with template advice so UI shows fast.
       state = state.copyWith(
         overallScore: overallScore,
         numerologyScore: numerologyScore,
@@ -151,11 +179,56 @@ class HomeFortuneNotifier extends StateNotifier<HomeFortuneState> {
       );
 
       AnalyticsService().logViewFortune(overallScore, starRating);
+
+      // Fire AI advice request asynchronously – updates state when ready.
+      _fetchAiAdvice(
+        overallScore: overallScore,
+        numerologyScore: numerologyScore,
+        moonScore: moonScore,
+        biorhythmScore: biorhythmScore,
+        moonPhaseName: moonPhaseName,
+        biorhythmPhase: biorhythmPhase,
+        birthDate: birthDate,
+        targetDate: today,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
       );
+    }
+  }
+
+  /// Fetches AI-generated advice in the background and updates state.
+  Future<void> _fetchAiAdvice({
+    required int overallScore,
+    required int numerologyScore,
+    required int moonScore,
+    required int biorhythmScore,
+    required String moonPhaseName,
+    required String biorhythmPhase,
+    required DateTime birthDate,
+    required DateTime targetDate,
+  }) async {
+    try {
+      final aiResult = await AiFortuneService().generateDailyAdvice(
+        overallScore: overallScore,
+        numerologyScore: numerologyScore,
+        moonScore: moonScore,
+        biorhythmScore: biorhythmScore,
+        moonPhaseName: moonPhaseName,
+        biorhythmPhase: biorhythmPhase,
+        birthDate: birthDate,
+        targetDate: targetDate,
+      );
+      state = state.copyWith(
+        aiAdvice: aiResult.advice,
+        luckyColor: aiResult.luckyColor.isNotEmpty ? aiResult.luckyColor : null,
+        luckyTime: aiResult.luckyTime.isNotEmpty ? aiResult.luckyTime : null,
+        luckySpot: aiResult.luckySpot.isNotEmpty ? aiResult.luckySpot : null,
+      );
+    } catch (e) {
+      debugPrint('HomeFortuneNotifier._fetchAiAdvice error: $e');
     }
   }
 

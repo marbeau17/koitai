@@ -63,4 +63,8 @@ abstract final class AppConfig {
   static const double numerologyWeight = 0.35;
   static const double moonPhaseWeight = 0.30;
   static const double biorhythmWeight = 0.35;
+
+  // ── Gemini AI ──────────────────────────────────────────
+  static const String geminiApiKey = 'AIzaSyAGEAK9vUREVnYWCf6AtklHAbP8f2tj5Cc';
+  static const String geminiModel = 'gemini-2.5-flash';
 }

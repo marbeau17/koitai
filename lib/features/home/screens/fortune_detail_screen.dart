@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/utils/ai_fortune_service.dart';
 import '../../../domain/services/biorhythm_service.dart';
 import '../../../domain/services/fortune_text_service.dart';
 import '../../../domain/services/love_timing_service.dart';
@@ -17,14 +18,90 @@ import '../../../shared/widgets/star_rating.dart';
 import '../../auth/providers/auth_provider.dart';
 
 /// Full fortune detail screen for a given date.
-class FortuneDetailScreen extends ConsumerWidget {
+class FortuneDetailScreen extends ConsumerStatefulWidget {
   const FortuneDetailScreen({super.key, required this.date});
 
   /// Date string in "yyyy-MM-dd" format.
   final String date;
 
+  @override
+  ConsumerState<FortuneDetailScreen> createState() =>
+      _FortuneDetailScreenState();
+}
+
+class _FortuneDetailScreenState extends ConsumerState<FortuneDetailScreen> {
   /// Default birth date used as fallback when the user hasn't set one yet.
   static final _defaultBirthDate = DateTime(1995, 6, 15);
+
+  String? _aiAdvice;
+  String? _aiLuckyColor;
+  String? _aiLuckyTime;
+  String? _aiLuckySpot;
+  bool _aiLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAiAdvice();
+  }
+
+  Future<void> _loadAiAdvice() async {
+    final targetDate = DateTime.tryParse(widget.date) ?? DateTime.now();
+    final birthDate =
+        ref.read(authProvider).birthDate ?? _defaultBirthDate;
+
+    final overallScore =
+        LoveTimingService.calculateTotalLoveScore(birthDate, targetDate);
+    final numerologyScore =
+        NumerologyService.calculateNumerologyLoveScore(birthDate, targetDate);
+
+    final moonAge = MoonPhaseService.calculateMoonAge(targetDate);
+    final moonFraction = MoonPhaseService.calculateMoonFraction(moonAge);
+    int moonScore = MoonPhaseService.calculateMoonLoveScore(moonFraction);
+    moonScore =
+        MoonPhaseService.applyFullMoonBonus(moonScore, moonFraction);
+    final moonPhase = MoonPhaseService.getMoonPhase(moonFraction);
+    final moonPhaseName = MoonPhaseService.getMoonPhaseName(moonPhase);
+
+    int biorhythmScore =
+        BiorhythmService.calculateLoveBiorhythmScore(birthDate, targetDate);
+    final criticalInfo =
+        BiorhythmService.checkCriticalDay(birthDate, targetDate);
+    biorhythmScore =
+        BiorhythmService.applyCriticalDayPenalty(biorhythmScore, criticalInfo);
+
+    final biorhythm =
+        BiorhythmService.calculateBiorhythm(birthDate, targetDate);
+    final biorhythmPhase =
+        BiorhythmService.getBiorhythmPhase(biorhythm.emotional);
+
+    try {
+      final result = await AiFortuneService().generateDailyAdvice(
+        overallScore: overallScore,
+        numerologyScore: numerologyScore,
+        moonScore: moonScore,
+        biorhythmScore: biorhythmScore,
+        moonPhaseName: moonPhaseName,
+        biorhythmPhase: biorhythmPhase,
+        birthDate: birthDate,
+        targetDate: targetDate,
+      );
+      if (mounted) {
+        setState(() {
+          _aiAdvice = result.advice;
+          _aiLuckyColor =
+              result.luckyColor.isNotEmpty ? result.luckyColor : null;
+          _aiLuckyTime =
+              result.luckyTime.isNotEmpty ? result.luckyTime : null;
+          _aiLuckySpot =
+              result.luckySpot.isNotEmpty ? result.luckySpot : null;
+          _aiLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('FortuneDetailScreen AI error: $e');
+    }
+  }
 
   /// Returns a moon phase emoji for a given [MoonPhase].
   static String _moonPhaseEmoji(MoonPhase phase) {
@@ -69,9 +146,9 @@ class FortuneDetailScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     // Parse the date string.
-    final targetDate = DateTime.tryParse(date) ?? DateTime.now();
+    final targetDate = DateTime.tryParse(widget.date) ?? DateTime.now();
 
     // Read user birth date from auth provider.
     final birthDate = ref.watch(authProvider).birthDate ?? _defaultBirthDate;
@@ -101,12 +178,18 @@ class FortuneDetailScreen extends ConsumerWidget {
     final biorhythm =
         BiorhythmService.calculateBiorhythm(birthDate, targetDate);
 
-    // Generate advice.
+    // Generate template advice (used as fallback).
     final dailyAdvice = FortuneTextService.generateDailyAdvice(
       birthDate: birthDate,
       targetDate: targetDate,
       userName: '\u3042\u306A\u305F', // あなた
     );
+
+    // Choose displayed advice: prefer AI, fall back to template.
+    final displayAdvice = _aiAdvice ?? dailyAdvice.mainText;
+    final displayLuckyColor = _aiLuckyColor ?? dailyAdvice.luckyColor;
+    final displayLuckyTime = _aiLuckyTime ?? dailyAdvice.luckyTime;
+    final displayLuckySpot = _aiLuckySpot ?? dailyAdvice.luckySpot;
 
     // Get recommended actions.
     final actions = LoveTimingService.getRecommendedActions(
@@ -305,12 +388,12 @@ class FortuneDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.auto_awesome,
+                      const Icon(Icons.auto_awesome,
                           color: AppColors.accent, size: 20),
-                      SizedBox(width: 8),
-                      Text(
+                      const SizedBox(width: 8),
+                      const Text(
                         AppStrings.todayAdvice,
                         style: TextStyle(
                           fontSize: 15,
@@ -318,11 +401,30 @@ class FortuneDetailScreen extends ConsumerWidget {
                           color: AppColors.textPrimary,
                         ),
                       ),
+                      if (_aiLoaded) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'AI',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryLight,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    dailyAdvice.mainText,
+                    displayAdvice,
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -334,21 +436,21 @@ class FortuneDetailScreen extends ConsumerWidget {
                     icon: Icons.palette,
                     label: '\u30E9\u30C3\u30AD\u30FC\u30AB\u30E9\u30FC',
                     // ラッキーカラー
-                    value: dailyAdvice.luckyColor,
+                    value: displayLuckyColor,
                   ),
                   const SizedBox(height: 6),
                   _LuckyItemRow(
                     icon: Icons.access_time,
                     label: '\u30E9\u30C3\u30AD\u30FC\u30BF\u30A4\u30E0',
                     // ラッキータイム
-                    value: dailyAdvice.luckyTime,
+                    value: displayLuckyTime,
                   ),
                   const SizedBox(height: 6),
                   _LuckyItemRow(
                     icon: Icons.place,
                     label: '\u30E9\u30C3\u30AD\u30FC\u30B9\u30DD\u30C3\u30C8',
                     // ラッキースポット
-                    value: dailyAdvice.luckySpot,
+                    value: displayLuckySpot,
                   ),
                 ],
               ),
@@ -424,7 +526,7 @@ class FortuneDetailScreen extends ConsumerWidget {
                       '\u3010$formattedDate\u306E\u604B\u611B\u904B\u3011\n'
                       '\u30B9\u30B3\u30A2: $overallScore\u70B9'
                       ' $starStr\n'
-                      '${dailyAdvice.mainText}\n'
+                      '$displayAdvice\n'
                       '\n'
                       '\u30A2\u30D7\u30EA\u3067\u8A73\u3057\u304F\u898B\u308B'
                       ' \u25B6 https://koitai-prod.web.app\n'

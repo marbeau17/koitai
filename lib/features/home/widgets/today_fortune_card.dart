@@ -5,18 +5,29 @@ import '../../../core/constants/app_strings.dart';
 /// Advice card shown on the home screen.
 class TodayFortuneCard extends StatelessWidget {
   final String advice;
+  final String? aiAdvice;
+  final String? luckyColor;
+  final String? luckyTime;
+  final String? luckySpot;
   final VoidCallback? onReadMore;
   final VoidCallback? onShare;
 
   const TodayFortuneCard({
     super.key,
     required this.advice,
+    this.aiAdvice,
+    this.luckyColor,
+    this.luckyTime,
+    this.luckySpot,
     this.onReadMore,
     this.onShare,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayAdvice = aiAdvice ?? advice;
+    final isAi = aiAdvice != null;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -30,11 +41,11 @@ class TodayFortuneCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.mail_rounded, color: AppColors.accent, size: 20),
-              SizedBox(width: 8),
-              Text(
+              const Icon(Icons.mail_rounded, color: AppColors.accent, size: 20),
+              const SizedBox(width: 8),
+              const Text(
                 AppStrings.todayAdvice,
                 style: TextStyle(
                   fontSize: 15,
@@ -42,17 +53,61 @@ class TodayFortuneCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
+              if (isAi) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'AI',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryLight,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            advice,
+            displayAdvice,
             style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
               height: 1.6,
             ),
           ),
+          if (luckyColor != null || luckyTime != null || luckySpot != null) ...[
+            const SizedBox(height: 12),
+            if (luckyColor != null && luckyColor!.isNotEmpty)
+              _LuckyRow(
+                icon: Icons.palette,
+                label: '\u30E9\u30C3\u30AD\u30FC\u30AB\u30E9\u30FC',
+                value: luckyColor!,
+              ),
+            if (luckyTime != null && luckyTime!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _LuckyRow(
+                icon: Icons.access_time,
+                label: '\u30E9\u30C3\u30AD\u30FC\u30BF\u30A4\u30E0',
+                value: luckyTime!,
+              ),
+            ],
+            if (luckySpot != null && luckySpot!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _LuckyRow(
+                icon: Icons.place,
+                label: '\u30E9\u30C3\u30AD\u30FC\u30B9\u30DD\u30C3\u30C8',
+                value: luckySpot!,
+              ),
+            ],
+          ],
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,7 +138,7 @@ class TodayFortuneCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
-                    'シェア',
+                    '\u30B7\u30A7\u30A2',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.primary,
@@ -95,6 +150,43 @@ class TodayFortuneCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LuckyRow extends StatelessWidget {
+  const _LuckyRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primaryLight, size: 14),
+        const SizedBox(width: 6),
+        Text(
+          '$label: ',
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
     );
   }
 }

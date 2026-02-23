@@ -10,6 +10,7 @@ import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/score_bar.dart';
 import '../providers/pair_provider.dart';
 import '../widgets/compatibility_gauge.dart';
+import '../../../domain/services/fortune_text_service.dart';
 
 class PairResultScreen extends ConsumerWidget {
   const PairResultScreen({super.key});
@@ -129,6 +130,79 @@ class PairResultScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 16),
+
+            // AI Advice card
+            Builder(
+              builder: (context) {
+                final adviceText = result.aiAdvice ??
+                    FortuneTextService.selectPairTemplate(
+                      result.compatibilityScore,
+                      DateTime.now().millisecondsSinceEpoch,
+                    );
+                final isAi = result.aiAdvice != null;
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgCard,
+                    borderRadius: BorderRadius.circular(16),
+                    border: const Border(
+                      left: BorderSide(color: AppColors.accent, width: 3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.auto_awesome,
+                              color: AppColors.accent, size: 20),
+                          const SizedBox(width: 8),
+                          const Text(
+                            '\u30DA\u30A2\u30A2\u30C9\u30D0\u30A4\u30B9',
+                            // ペアアドバイス
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          if (isAi) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'AI',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryLight,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        adviceText,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          height: 1.6,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 24),
 

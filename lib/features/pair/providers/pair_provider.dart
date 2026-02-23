@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../core/constants/app_config.dart';
+import '../../../core/utils/ai_fortune_service.dart';
 import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/best_day_finder.dart';
 import '../../../domain/services/love_timing_service.dart';
@@ -33,6 +35,7 @@ class PairResult {
   final int moonSyncScore;
   final int biorhythmScore;
   final List<RecommendedDate> recommendedDates;
+  final String? aiAdvice;
 
   const PairResult({
     required this.compatibilityScore,
@@ -40,7 +43,26 @@ class PairResult {
     required this.moonSyncScore,
     required this.biorhythmScore,
     required this.recommendedDates,
+    this.aiAdvice,
   });
+
+  PairResult copyWith({
+    int? compatibilityScore,
+    int? numerologyScore,
+    int? moonSyncScore,
+    int? biorhythmScore,
+    List<RecommendedDate>? recommendedDates,
+    String? aiAdvice,
+  }) {
+    return PairResult(
+      compatibilityScore: compatibilityScore ?? this.compatibilityScore,
+      numerologyScore: numerologyScore ?? this.numerologyScore,
+      moonSyncScore: moonSyncScore ?? this.moonSyncScore,
+      biorhythmScore: biorhythmScore ?? this.biorhythmScore,
+      recommendedDates: recommendedDates ?? this.recommendedDates,
+      aiAdvice: aiAdvice ?? this.aiAdvice,
+    );
+  }
 }
 
 class RecommendedDate {
@@ -284,8 +306,31 @@ class PairNotifier extends StateNotifier<PairState> {
       await _saveHistory(updatedHistory);
 
       AnalyticsService().logViewPairResult(pairTimingScore);
+
+      // Fire AI pair advice asynchronously.
+      _fetchAiPairAdvice(result);
     } catch (e) {
       state = state.copyWith(isCalculating: false, error: e.toString());
+    }
+  }
+
+  /// Fetches AI-generated pair advice in the background and updates state.
+  Future<void> _fetchAiPairAdvice(PairResult result) async {
+    try {
+      final advice = await AiFortuneService().generatePairAdvice(
+        compatibilityScore: result.compatibilityScore,
+        numerologyScore: result.numerologyScore,
+        moonSyncScore: result.moonSyncScore,
+        biorhythmScore: result.biorhythmScore,
+        recommendedDates: result.recommendedDates,
+      );
+      if (state.result != null) {
+        state = state.copyWith(
+          result: state.result!.copyWith(aiAdvice: advice),
+        );
+      }
+    } catch (e) {
+      debugPrint('PairNotifier._fetchAiPairAdvice error: $e');
     }
   }
 

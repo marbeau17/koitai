@@ -167,6 +167,10 @@ class HomeScreen extends ConsumerWidget {
                         const SizedBox(height: 24),
                         TodayFortuneCard(
                           advice: fortune.advice,
+                          aiAdvice: fortune.aiAdvice,
+                          luckyColor: fortune.luckyColor,
+                          luckyTime: fortune.luckyTime,
+                          luckySpot: fortune.luckySpot,
                           onReadMore: () {
                             final today = DateFormat('yyyy-MM-dd')
                                 .format(DateTime.now());
