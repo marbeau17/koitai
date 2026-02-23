@@ -60,6 +60,44 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
 
+            // Notification toggle
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.bgCard,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SwitchListTile(
+                title: const Text(
+                  '\u901A\u77E5',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  profile.notificationEnabled
+                      ? '\u6BCE\u65E5 ${_formatTime(profile.notificationTime)} \u306B\u901A\u77E5'
+                      : '\u30AA\u30D5',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                secondary: const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.textSecondary,
+                ),
+                value: profile.notificationEnabled,
+                onChanged: (enabled) {
+                  ref
+                      .read(profileProvider.notifier)
+                      .setNotificationEnabled(enabled);
+                },
+                activeThumbColor: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+
             // Notification time setting
             Container(
               decoration: BoxDecoration(
@@ -78,9 +116,9 @@ class SettingsScreen extends ConsumerWidget {
                     color: AppColors.textPrimary,
                   ),
                 ),
-                subtitle: const Text(
-                  '08:00',
-                  style: TextStyle(
+                subtitle: Text(
+                  _formatTime(profile.notificationTime),
+                  style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
                   ),
@@ -90,10 +128,15 @@ class SettingsScreen extends ConsumerWidget {
                   color: AppColors.disabledText,
                 ),
                 onTap: () async {
-                  await showTimePicker(
+                  final picked = await showTimePicker(
                     context: context,
-                    initialTime: const TimeOfDay(hour: 8, minute: 0),
+                    initialTime: profile.notificationTime,
                   );
+                  if (picked != null) {
+                    ref
+                        .read(profileProvider.notifier)
+                        .setNotificationTime(picked);
+                  }
                 },
               ),
             ),
@@ -148,5 +191,12 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Format a [TimeOfDay] as HH:mm.
+  static String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 }

@@ -135,11 +135,17 @@ class PaywallScreen extends ConsumerWidget {
                     height: 52,
                     child: ElevatedButton(
                       onPressed: () async {
-                        final success = await ref
-                            .read(subscriptionProvider.notifier)
-                            .purchase();
+                        final notifier =
+                            ref.read(subscriptionProvider.notifier);
+                        final packageId =
+                            sub.selectedPlan == SubscriptionPlan.monthly
+                                ? 'monthly'
+                                : 'yearly';
+                        final success = await notifier.purchaseSubscription(
+                          packageId: packageId,
+                        );
                         if (success && context.mounted) {
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(true);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -193,9 +199,25 @@ class PaywallScreen extends ConsumerWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await ref
+                          final restored = await ref
                               .read(subscriptionProvider.notifier)
-                              .restore();
+                              .restorePurchases();
+                          if (!context.mounted) return;
+                          if (restored) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('\u8CFC\u5165\u3092\u5FA9\u5143\u3057\u307E\u3057\u305F'),
+                              ),
+                            );
+                            Navigator.of(context).pop(true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text('\u5FA9\u5143\u3067\u304D\u308B\u8CFC\u5165\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F'),
+                              ),
+                            );
+                          }
                         },
                         child: const Text(
                           AppStrings.restore,

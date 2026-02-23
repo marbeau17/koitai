@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
 import 'core/constants/app_config.dart';
+import 'core/utils/notification_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -15,6 +16,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Push & local notifications (no-op on Web)
+  await NotificationService().init();
 
   // Hive local storage
   await Hive.initFlutter();

@@ -15,6 +15,8 @@ class MyApp extends ConsumerWidget {
     // TODO: read theme mode from user settings provider
     const themeMode = ThemeMode.dark;
 
+    final router = ref.watch(appRouterProvider);
+
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
@@ -25,7 +27,7 @@ class MyApp extends ConsumerWidget {
       themeMode: themeMode,
 
       // Routing
-      routerConfig: appRouter,
+      routerConfig: router,
 
       // Localization
       localizationsDelegates: const [

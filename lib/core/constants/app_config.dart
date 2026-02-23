@@ -25,9 +25,14 @@ abstract final class AppConfig {
   static const int minimumAge = 13;
 
   // ── Subscription (RevenueCat) ────────────────────────────
+  static const String revenueCatApiKeyAndroid =
+      'goog_placeholder_android_api_key';
+  static const String revenueCatApiKeyiOS =
+      'appl_placeholder_ios_api_key';
+  static const String revenueCatEntitlementId = 'premium';
   static const String revenueCatEntitlement = 'premium';
   static const String revenueCatOffering = 'default';
-  static const String monthlyProductId = 'love_timing_premium_monthly';
+  static const String monthlyProductId = 'koitai_monthly_680';
   static const String yearlyProductId = 'love_timing_premium_yearly';
   static const int monthlyPriceYen = 680;
   static const int yearlyPriceYen = 5400;

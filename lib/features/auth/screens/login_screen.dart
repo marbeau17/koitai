@@ -62,7 +62,8 @@ class LoginScreen extends ConsumerWidget {
                             await ref
                                 .read(authProvider.notifier)
                                 .signInWithGoogle();
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                ref.read(authProvider).isAuthenticated) {
                               context.go(AppRoutes.onboarding);
                             }
                           },
@@ -91,7 +92,8 @@ class LoginScreen extends ConsumerWidget {
                             await ref
                                 .read(authProvider.notifier)
                                 .signInWithApple();
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                ref.read(authProvider).isAuthenticated) {
                               context.go(AppRoutes.onboarding);
                             }
                           },

@@ -1,11 +1,11 @@
 {
-    "name": "koitai",
-    "short_name": "koitai",
+    "name": "コイタイ",
+    "short_name": "コイタイ",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0F0A1A",
+    "theme_color": "#6C3FE0",
+    "description": "KoiTai - Love Timing Fortune App",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/utils/notification_service.dart';
 
 /// State for the profile / my-page.
 class ProfileState {
@@ -7,6 +10,8 @@ class ProfileState {
   final int lifePathNumber;
   final String subscriptionPlan;
   final bool isDarkMode;
+  final bool notificationEnabled;
+  final TimeOfDay notificationTime;
   final bool isLoading;
 
   const ProfileState({
@@ -15,6 +20,8 @@ class ProfileState {
     this.lifePathNumber = 0,
     this.subscriptionPlan = 'free',
     this.isDarkMode = true,
+    this.notificationEnabled = false,
+    this.notificationTime = const TimeOfDay(hour: 8, minute: 0),
     this.isLoading = false,
   });
 
@@ -26,6 +33,8 @@ class ProfileState {
     int? lifePathNumber,
     String? subscriptionPlan,
     bool? isDarkMode,
+    bool? notificationEnabled,
+    TimeOfDay? notificationTime,
     bool? isLoading,
   }) {
     return ProfileState(
@@ -34,6 +43,8 @@ class ProfileState {
       lifePathNumber: lifePathNumber ?? this.lifePathNumber,
       subscriptionPlan: subscriptionPlan ?? this.subscriptionPlan,
       isDarkMode: isDarkMode ?? this.isDarkMode,
+      notificationEnabled: notificationEnabled ?? this.notificationEnabled,
+      notificationTime: notificationTime ?? this.notificationTime,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -57,6 +68,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       lifePathNumber: 9,
       subscriptionPlan: 'free',
       isDarkMode: true,
+      notificationEnabled: false,
+      notificationTime: const TimeOfDay(hour: 8, minute: 0),
       isLoading: false,
     );
   }
@@ -67,6 +80,29 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
   void toggleTheme() {
     state = state.copyWith(isDarkMode: !state.isDarkMode);
+  }
+
+  /// Toggle notification on/off and schedule or cancel accordingly.
+  Future<void> setNotificationEnabled(bool enabled) async {
+    state = state.copyWith(notificationEnabled: enabled);
+    final service = NotificationService();
+
+    if (enabled) {
+      final t = state.notificationTime;
+      await service.scheduleDailyNotification(hour: t.hour, minute: t.minute);
+    } else {
+      await service.cancelAllNotifications();
+    }
+  }
+
+  /// Update the scheduled notification time and reschedule if enabled.
+  Future<void> setNotificationTime(TimeOfDay time) async {
+    state = state.copyWith(notificationTime: time);
+
+    if (state.notificationEnabled) {
+      await NotificationService()
+          .scheduleDailyNotification(hour: time.hour, minute: time.minute);
+    }
   }
 }
 
