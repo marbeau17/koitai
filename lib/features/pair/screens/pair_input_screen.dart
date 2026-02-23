@@ -276,13 +276,13 @@ class _PairInputScreenState extends ConsumerState<PairInputScreen> {
   }
 }
 
-class _HistoryTile extends StatelessWidget {
+class _HistoryTile extends ConsumerWidget {
   final PairHistoryEntry entry;
 
   const _HistoryTile({required this.entry});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(
@@ -301,7 +301,10 @@ class _HistoryTile extends StatelessWidget {
       ),
       trailing: TextButton(
         onPressed: () {
-          // TODO: Re-calculate with this partner
+          ref.read(pairProvider.notifier).setPartnerBirthDate(entry.partnerBirthDate);
+          ref.read(pairProvider.notifier).setPartnerNickname(entry.nickname);
+          ref.read(pairProvider.notifier).calculatePairFortune();
+          context.push(AppRoutes.pairResult);
         },
         child: const Text(
           '\u518D\u5360\u3044',

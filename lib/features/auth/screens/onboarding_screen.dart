@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../providers/auth_provider.dart';
 
@@ -424,9 +425,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 ref.read(authProvider.notifier).setNotificationEnabled(true);
-                // TODO: Request OS notification permission
+                await NotificationService().init();
                 _completeOnboarding();
               },
               style: ElevatedButton.styleFrom(

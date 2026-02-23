@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/love_timing_service.dart';
 import '../../../shared/widgets/fortune_score_badge.dart';
@@ -166,7 +168,9 @@ class HomeScreen extends ConsumerWidget {
                         TodayFortuneCard(
                           advice: fortune.advice,
                           onReadMore: () {
-                            // TODO: Navigate to detail screen
+                            final today = DateFormat('yyyy-MM-dd')
+                                .format(DateTime.now());
+                            context.push(AppRoutes.detailPath(today));
                           },
                           onShare: () {
                             AnalyticsService().logShare('fortune');

@@ -164,6 +164,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(gender: gender);
   }
 
+  /// Public wrapper to persist the current profile state to Hive.
+  ///
+  /// Call this after updating birthDate, gender, or other profile fields
+  /// outside of the onboarding flow (e.g. from profile edit).
+  Future<void> saveProfile() async {
+    await _saveProfileToHive();
+  }
+
   void setNotificationEnabled(bool enabled) {
     state = state.copyWith(notificationEnabled: enabled);
   }

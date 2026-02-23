@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/router/app_router.dart';
 import '../../../shared/widgets/gradient_background.dart';
 import '../../../shared/widgets/score_bar.dart';
 import '../providers/pair_provider.dart';
@@ -196,9 +198,7 @@ class PairResultScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             Center(
               child: TextButton(
-                onPressed: () {
-                  // TODO: Navigate to paywall for more dates
-                },
+                onPressed: () => context.push(AppRoutes.subscription),
                 child: const Text(
                   '\u3082\u3063\u3068\u898B\u308B(\u6709\u6599)',
                   style: TextStyle(color: AppColors.textSecondary),

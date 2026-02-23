@@ -6,6 +6,7 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
 import '../../features/calendar/screens/calendar_screen.dart';
+import '../../features/home/screens/fortune_detail_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/pair/screens/pair_input_screen.dart';
 import '../../features/pair/screens/pair_result_screen.dart';
@@ -99,7 +100,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
           final date = state.pathParameters['date'] ?? '';
-          return DetailPlaceholderScreen(date: date);
+          return FortuneDetailScreen(date: date);
         },
       ),
 
@@ -160,20 +161,5 @@ class _AuthRefreshNotifier extends ChangeNotifier {
   void dispose() {
     _sub.close();
     super.dispose();
-  }
-}
-
-/// Temporary placeholder until the real detail screen is built.
-class DetailPlaceholderScreen extends StatelessWidget {
-  const DetailPlaceholderScreen({super.key, required this.date});
-
-  final String date;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('$dateの占い結果')),
-      body: Center(child: Text('占い結果詳細: $date')),
-    );
   }
 }

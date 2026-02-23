@@ -1,5 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../../../core/constants/app_config.dart';
 import '../../../core/utils/analytics_service.dart';
 import '../../../domain/services/best_day_finder.dart';
 import '../../../domain/services/love_timing_service.dart';
@@ -111,23 +115,40 @@ class PairNotifier extends StateNotifier<PairState> {
   }
 
   Future<void> _loadHistory() async {
-    // TODO: Load from Hive local storage
-    state = state.copyWith(
-      history: [
-        PairHistoryEntry(
-          nickname: 'A\u3055\u3093',
-          partnerBirthDate: DateTime(1997, 5, 20),
-          readingDate: DateTime.now().subtract(const Duration(days: 2)),
-          compatibilityScore: 88,
-        ),
-        PairHistoryEntry(
-          nickname: 'B\u3055\u3093',
-          partnerBirthDate: DateTime(1999, 11, 8),
-          readingDate: DateTime.now().subtract(const Duration(days: 4)),
-          compatibilityScore: 72,
-        ),
-      ],
-    );
+    final box = Hive.box<dynamic>(AppConfig.hiveBoxPair);
+    final raw = box.get('history');
+    if (raw == null) {
+      state = state.copyWith(history: []);
+      return;
+    }
+    try {
+      final List<dynamic> decoded = json.decode(raw as String) as List<dynamic>;
+      final entries = decoded.map((item) {
+        final map = item as Map<String, dynamic>;
+        return PairHistoryEntry(
+          nickname: map['nickname'] as String,
+          partnerBirthDate:
+              DateTime.fromMillisecondsSinceEpoch(map['partnerBirthDate'] as int),
+          readingDate:
+              DateTime.fromMillisecondsSinceEpoch(map['readingDate'] as int),
+          compatibilityScore: map['compatibilityScore'] as int,
+        );
+      }).toList();
+      state = state.copyWith(history: entries);
+    } catch (_) {
+      state = state.copyWith(history: []);
+    }
+  }
+
+  Future<void> _saveHistory(List<PairHistoryEntry> history) async {
+    final box = Hive.box<dynamic>(AppConfig.hiveBoxPair);
+    final encoded = json.encode(history.map((e) => {
+      'nickname': e.nickname,
+      'partnerBirthDate': e.partnerBirthDate.millisecondsSinceEpoch,
+      'readingDate': e.readingDate.millisecondsSinceEpoch,
+      'compatibilityScore': e.compatibilityScore,
+    }).toList());
+    await box.put('history', encoded);
   }
 
   Future<void> calculatePairFortune() async {
@@ -259,6 +280,8 @@ class PairNotifier extends StateNotifier<PairState> {
         history: updatedHistory,
         isCalculating: false,
       );
+
+      await _saveHistory(updatedHistory);
 
       AnalyticsService().logViewPairResult(pairTimingScore);
     } catch (e) {
